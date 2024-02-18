@@ -6,7 +6,7 @@ from xgboost import XGBClassifier
 # Load or preprocess your data to obtain features and scaler
 # Example: Assuming you have a CSV file 'your_data.csv'
 data = pd.read_csv('sfari_genes.csv')
-features = data.drop(columns='syndromic')
+features = data.drop(columns=['syndromic', 'gene-symbol'])
 scaler = MinMaxScaler((-1, 1))
 X = scaler.fit_transform(features)
 
@@ -28,20 +28,25 @@ def preprocess_data(input_data):
     input_data_scaled = scaler.transform(input_data)
     return input_data_scaled
 
-st.title("Autism Prediction")
+st.title("Gene Syndromic Prediction")
 
-# Get user input
-input_data = {}
-for feature in features.columns:
-    user_input = st.text_input(f"{feature}:")
-    input_data[feature] = user_input
+# Get user input for gene symbol
+gene_symbol = st.text_input("Enter Gene Symbol:")
 
 if st.button("Predict"):
     try:
-        input_data_list = [float(input_data[feature]) for feature in features.columns]
-        input_data_scaled = preprocess_data(input_data_list)
-        prediction = model.predict(input_data_scaled)
-        result = "Autism" if prediction == 1 else "Not Autism"
-        st.write(f"Prediction: {result}")
+        # Get the corresponding row from the dataset for the entered gene symbol
+        input_data_row = data[data['gene-symbol'] == gene_symbol].drop(['syndromic', 'gene-symbol'], axis=1).iloc[0]
+        
+        # Preprocess the input data for prediction
+        input_data_scaled = preprocess_data(input_data_row)
+        
+        # Make the prediction
+        prediction = model.predict(input_data_scaled.reshape(1, -1))
+        
+        result = "Syndromic" if prediction == 1 else "Non-Syndromic"
+        st.write(f"Prediction for Gene Symbol '{gene_symbol}': {result}")
+    except IndexError:
+        st.write(f"Gene Symbol '{gene_symbol}' not found in the dataset.")
     except ValueError as e:
-        st.write(f"Error: {e}. Please make sure all inputs are valid numbers.")
+        st.write(f"Error: {e}. Please make sure the input is valid.")
