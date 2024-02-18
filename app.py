@@ -5,7 +5,7 @@ from xgboost import XGBClassifier
 
 # Load or preprocess your data to obtain X
 # Example: Assuming you have a CSV file 'your_data.csv'
-data = pd.read_csv('your_data.csv')
+data = pd.read_csv('sfari_genes.csv')
 features = data.drop(columns='syndromic')
 scaler = MinMaxScaler((-1, 1))
 X = scaler.fit_transform(features)
