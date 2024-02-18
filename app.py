@@ -2,12 +2,18 @@ import streamlit as st
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from xgboost import XGBClassifier
-import numpy as np
+
+# Load or preprocess your data to obtain X
+# Example: Assuming you have a CSV file 'your_data.csv'
+data = pd.read_csv('your_data.csv')
+features = data.drop(columns='syndromic')
+scaler = MinMaxScaler((-1, 1))
+X = scaler.fit_transform(features)
 
 # Load the model
 model = XGBClassifier()
 # Assuming your model is trained on the entire dataset before deployment
-model.fit(X, y)
+model.fit(X, data['syndromic'])
 
 # Function to preprocess input data
 def preprocess_data(input_data):
